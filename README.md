@@ -23,4 +23,4 @@ between ```gcc``` and ```clang```
 - ```cmake ..```
 - ```make``` (Will cause an error, this is normal. The PALISADE build process autogenerates files we need)
 - ```make``` 
-- ```./FBS```
+- ```./FBSTest``` or ```./NN```
