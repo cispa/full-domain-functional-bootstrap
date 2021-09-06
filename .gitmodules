@@ -1,0 +1,3 @@
+[submodule "palisade-release"]
+	path = palisade-release
+	url = https://gitlab.com/palisade/palisade-release.git

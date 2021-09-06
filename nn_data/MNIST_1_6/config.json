@@ -1,0 +1,35 @@
+[
+      {
+            "name": "dense",
+            "activation": "relu_modulo",
+            "rows": 784,
+            "columns": 512,
+            "weights": "layers/L0_dense_W.csv",
+            "bias": "layers/L0_dense_B.csv",
+            "modulus": 1024,
+            "scale": 1,
+            "scale_inv": 0
+      },
+      {
+            "name": "dense",
+            "activation": "relu_modulo",
+            "rows": 512,
+            "columns": 510,
+            "weights": "layers/L1_dense_W.csv",
+            "bias": "layers/L1_dense_B.csv",
+            "modulus": 1024,
+            "scale": 6,
+            "scale_inv": 0
+      },
+      {
+            "name": "dense",
+            "activation": "softmax_modulo",
+            "rows": 510,
+            "columns": 10,
+            "weights": "layers/L2_dense_W.csv",
+            "bias": "layers/L2_dense_B.csv",
+            "modulus": 1024,
+            "scale": 6,
+            "scale_inv": 0
+      }
+]

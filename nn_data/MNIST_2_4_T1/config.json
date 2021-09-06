@@ -1,0 +1,122 @@
+[
+      {
+            "name": "conv2d",
+            "filters": 4,
+            "kernel_size": [
+                  6,
+                  6
+            ],
+            "strides": [
+                  1,
+                  1
+            ],
+            "padding": "valid",
+            "channels": 1,
+            "weights": "layers/L0_conv2d_W.csv",
+            "bias": "layers/L0_conv2d_B.csv",
+            "activation": "relu_modulo",
+            "modulus": 1024,
+            "scale": 1,
+            "scale_inv": 0
+      },
+      {
+            "name": "avg_pool2d",
+            "pool_size": [
+                  2,
+                  2
+            ],
+            "strides": [
+                  2,
+                  2
+            ],
+            "padding": "valid",
+            "fused": false,
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      },
+      {
+            "name": "conv2d",
+            "filters": 16,
+            "kernel_size": [
+                  6,
+                  6
+            ],
+            "strides": [
+                  1,
+                  1
+            ],
+            "padding": "valid",
+            "channels": 4,
+            "weights": "layers/L2_conv2d_W.csv",
+            "bias": "layers/L2_conv2d_B.csv",
+            "activation": "relu_modulo",
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      },
+      {
+            "name": "avg_pool2d",
+            "pool_size": [
+                  2,
+                  2
+            ],
+            "strides": [
+                  2,
+                  2
+            ],
+            "padding": "valid",
+            "fused": false,
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      },
+      {
+            "name": "conv2d",
+            "filters": 16,
+            "kernel_size": [
+                  3,
+                  3
+            ],
+            "strides": [
+                  1,
+                  1
+            ],
+            "padding": "valid",
+            "channels": 16,
+            "weights": "layers/L4_conv2d_W.csv",
+            "bias": "layers/L4_conv2d_B.csv",
+            "activation": "relu_modulo",
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      },
+      {
+            "name": "flatten",
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      },
+      {
+            "name": "dense",
+            "activation": "relu_modulo",
+            "rows": 16,
+            "columns": 64,
+            "weights": "layers/L6_dense_W.csv",
+            "bias": "layers/L6_dense_B.csv",
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      },
+      {
+            "name": "dense",
+            "activation": "softmax_modulo",
+            "rows": 64,
+            "columns": 10,
+            "weights": "layers/L7_dense_W.csv",
+            "bias": "layers/L7_dense_B.csv",
+            "modulus": 1024,
+            "scale": 4,
+            "scale_inv": 0
+      }
+]
