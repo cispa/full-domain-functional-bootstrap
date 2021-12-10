@@ -18,9 +18,10 @@ The compiler should be adapted via ```-DCMAKE_CXX_COMPILER``` as there are signi
 between ```gcc``` and ```clang```
 
 - ```git clone https://github.com/cispa/full-domain-function-bootstrap```
+- ```git submodule update --init --recursive ```
 - ```mkdir install```  
 - ```mkdir build && cd build```
 - ```cmake ..```
-- ```make``` (Will cause an error, this is normal. The PALISADE build process autogenerates files we need)
+- ```make -j 16``` (Will cause an error, this is normal. The PALISADE build process autogenerates files we need)
 - ```make``` 
 - ```./FBSTest``` or ```./NN```
