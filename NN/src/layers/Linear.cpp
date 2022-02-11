@@ -72,52 +72,53 @@ namespace NN {
 
         std::shared_ptr<CiphertextTensor1D> tensor1D = std::dynamic_pointer_cast<CiphertextTensor1D>(tens);
 
+        std::vector<CiphertextCRT> accu(shapeX);
         std::vector<CiphertextCRT> result(shapeX);
-        if (activation != ACTIVATION::SOFTMAX) {
+
 #pragma omp parallel for
-            for(uint32_t i = 0; i < shapeX; i++) {
-                auto accu = CryptData.EncryptCRT(B_v[i] % moduli[0], fbscrypto::CIPHERTEXT_STATE::TRIVIAL_BEFORE_KEYSWITCH);
-                for(uint32_t j = 0; j < shapeY; j++) {
-                    auto tmp = (*tensor1D)[j] * this->W_m[j][i];
-                    accu += tmp;
-                }
-                result[i] = std::move(accu);
+        for(uint32_t i = 0; i < shapeX; i++) {
+            auto accu_ct = CryptData.EncryptCRT(B_v[i] % moduli[0], fbscrypto::CIPHERTEXT_STATE::TRIVIAL_BEFORE_KEYSWITCH);
+            for(uint32_t j = 0; j < shapeY; j++) {
+                auto tmp = (*tensor1D)[j] * this->W_m[j][i];
+                accu_ct += tmp;
             }
-        } else {
-            // assume 1 modulus, otherwise softmax doesn't make sense...
-            std::vector<long double> tmp(shapeX);
+            accu[i] = std::move(accu_ct);
+        }
+
+        if (activation == ACTIVATION::SOFTMAX) {
+            std::vector<int64_t> tmp;
             auto shape = tensor1D->GetShape();
             std::vector<PlaintextCRT> decrypted_tensor(shape);
+            auto modulus2 = CryptData.GetModuli()[0] >> 1;
 
 #pragma omp parallel for
             for(uint32_t i = 0; i < tensor1D->GetShape(); i++) {
-                auto tmp1 = CryptData.DoKeySwitch((*tensor1D)[i]);
+                auto tmp1 = CryptData.DoKeySwitch(accu[i]);
                 decrypted_tensor[i] = std::move(CryptData.DecryptCRT(tmp1, fbscrypto::TRIVIAL));
             }
 
-#pragma omp parallel for
-            for(uint32_t i = 0; i < shapeX; i++) {
-                auto accu = (long double)(B_v[i]);
-                for(uint32_t j = 0; j < shapeY; j++) {
-                    accu += (long double)(decrypted_tensor[j].at(0)) * this->W_m[j][i];
+            for(auto& PT : decrypted_tensor) {
+                int64_t value = PT.GetContents()[0];
+                if (value >= modulus2) {
+                    value -= modulus2;
                 }
-
-                tmp[i] = accu;
+                tmp.push_back(value);
             }
-
             auto max_idx = std::distance(tmp.begin(), std::max_element(tmp.begin(), tmp.end()));
+
+            // for our classification purpose we do not need the full probability distribution
+            // of a softmax output. As softmax preserves the ordering, we output the maximum.
             for(uint32_t i = 0; i < shapeX; i++) {
                 if (i == max_idx)
-                    result[i] = std::move(CryptData.EncryptCRT(3));
+                    result[i] = std::move(CryptData.EncryptCRT(1));
                 else
                     result[i] = std::move(CryptData.EncryptCRT(0));
             }
             return std::make_shared<CiphertextTensor1D>(result);
         }
 
-        std::shared_ptr<CiphertextTensor> tensor = std::make_shared<CiphertextTensor1D>(result);
-
-        return CiphertextActivation::forward(tensor);
+        std::shared_ptr<CiphertextTensor> tensor_out = std::make_shared<CiphertextTensor1D>(accu);
+        return CiphertextActivation::forward(tensor_out);
 
     }
 

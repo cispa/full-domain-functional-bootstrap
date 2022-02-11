@@ -302,16 +302,30 @@ namespace fbscrypto {
             for(int e = -bound; e < bound; e++) {
                 int pos = (int(center) + e) % NF;
                 if (center == 0) {
-                    rotP1[pos] = Q - F(Td2);
+                    // ORIG rotP1[pos] = Q - F(TD2)
+                    if (e == 0)
+                        rotP0[pos] = (Q-F(Td2)) % Q;
+                    else if (e > 0)
+                        rotP0[pos] = F(0);
+                    else
+                        rotP1[pos] = (Q - F(0)) % Q;
                 }
                 else if(center > 0 && center < NF)
-                    rotP1[NF - pos - 1] = Q - F(i);
-                else if (center == NF)
-                    rotP0[pos] = F(0);
+                    rotP1[NF - pos - 1] = (Q - F(i)) % Q;
+                else if (center == NF) {
+                    // ORIG rotP0[pos] = F(0);
+                    if (e == 0)
+                        rotP1[pos] = F(0);
+                    else if (e > 0)
+                        rotP1[pos] = (Q - F(Td2)) % Q;
+                    else
+                        rotP0[pos] = F(Td2);
+                }
                 else
                     rotP0[NF - pos - 1] = F(i);
             }
         }
+
 
         return std::make_pair(rotP0, rotP1);
     }
@@ -390,6 +404,8 @@ namespace fbscrypto {
 
             // build accumulator for final bootstrap
             auto rotation_polys = constructRotationPolynomial(params, functions[i]);
+            std::cout << rotation_polys.first << std::endl;
+            std::cout << rotation_polys.second << std::endl;
             TIME_SECTION_MILLIS("FDB BuildAcc",auto accumulator = BuildAcc(params, EK, powers_of_sig, rotation_polys.first, rotation_polys.second, functions[i]));
 
 #ifdef WITH_SECRET_KEY
@@ -467,7 +483,7 @@ namespace fbscrypto {
             const std::shared_ptr<const LWECiphertextImpl>& ct1, const std::shared_ptr<LWEEncryptionScheme>& LWEscheme,
             uint32_t T) const {
 
-        auto map = [](uint32_t a) {return a; };
+        auto map = []( uint32_t a) { return a; };
         BootstrapFunction fct(map, T);
 
         return FullDomainBootstrap(params, EK, ct1, LWEscheme, fct, NONE);

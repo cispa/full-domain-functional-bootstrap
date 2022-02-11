@@ -10,7 +10,6 @@ namespace NN {
     namespace Layers {
 
 
-        // This will suck -> It did ...
         PlaintextConvolve2D::PlaintextConvolve2D(std::vector<uint64_t> &moduli, uint64_t scale, uint64_t scale_inv, uint32_t  n_channels, uint32_t n_filters,
                                                  std::pair<uint32_t, uint32_t>& kernel_size,
                                                  std::pair<uint32_t, uint32_t> &stride, PADDING pad, ACTIVATION activation)
